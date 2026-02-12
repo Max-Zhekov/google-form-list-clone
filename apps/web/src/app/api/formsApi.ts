@@ -67,6 +67,24 @@ type FormQuestion =
       maxSelected?: never;
     };
 
+export type SubmitAnswer = {
+  questionId: string;
+  type: "TEXT" | "MULTIPLE_CHOICE" | "CHECKBOX" | "DATE";
+  textValue?: string | null;
+  multipleChoiceValue?: string | null;
+  checkboxValue?: string[] | null;
+  dateValue?: string | null;
+};
+
+type SubmitResponseArgs = {
+  formId: string;
+  answers: SubmitAnswer[];
+};
+
+type SubmitResponseData = {
+  submitResponse: { id: string; createdAt: string };
+};
+
 export type FormById = {
   id: string;
   title: string;
@@ -150,8 +168,34 @@ export const formsApi = createApi({
         return data.form;
       },
     }),
+
+    submitResponse: builder.mutation<
+      { id: string; createdAt: string },
+      SubmitResponseArgs
+    >({
+      query: (args) => ({
+        query: `
+      mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
+        submitResponse(formId: $formId, answers: $answers) {
+          id
+          createdAt
+        }
+      }
+    `,
+        variables: {
+          formId: args.formId,
+          answers: args.answers,
+        },
+      }),
+      transformResponse: (response) =>
+        (response as SubmitResponseData).submitResponse,
+    }),
   }),
 });
 
-export const { useGetFormsQuery, useCreateFormMutation, useGetFormQuery } =
-  formsApi;
+export const {
+  useGetFormsQuery,
+  useCreateFormMutation,
+  useGetFormQuery,
+  useSubmitResponseMutation,
+} = formsApi;
