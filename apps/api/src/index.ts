@@ -13,7 +13,7 @@ async function bootstrap() {
     listen: { port: 4000 },
   });
 
-  console.log(`🚀 API ready at ${url}`);
+  console.log(`API ready at ${url}`);
 }
 
 bootstrap().catch((e) => {

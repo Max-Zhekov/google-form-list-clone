@@ -3,8 +3,9 @@ export const typeDefs = /* GraphQL */ `
 
   enum QuestionType {
     TEXT
-    SINGLE
-    MULTI
+    MULTIPLE_CHOICE
+    CHECKBOX
+    DATE
   }
 
   type Form {
@@ -34,7 +35,7 @@ export const typeDefs = /* GraphQL */ `
     maxLength: Int
   }
 
-  type SingleChoiceQuestion implements Question {
+  type MultipleChoiceQuestion implements Question {
     id: ID!
     title: String!
     required: Boolean!
@@ -43,7 +44,7 @@ export const typeDefs = /* GraphQL */ `
     options: [String!]!
   }
 
-  type MultiChoiceQuestion implements Question {
+  type CheckboxQuestion implements Question {
     id: ID!
     title: String!
     required: Boolean!
@@ -52,6 +53,14 @@ export const typeDefs = /* GraphQL */ `
     options: [String!]!
     minSelected: Int
     maxSelected: Int
+  }
+
+  type DateQuestion implements Question {
+    id: ID!
+    title: String!
+    required: Boolean!
+    order: Int!
+    type: QuestionType!
   }
 
   input TextQuestionInput {
@@ -62,14 +71,14 @@ export const typeDefs = /* GraphQL */ `
     maxLength: Int
   }
 
-  input SingleChoiceQuestionInput {
+  input MultipleChoiceQuestionInput {
     title: String!
     required: Boolean!
     order: Int!
     options: [String!]!
   }
 
-  input MultiChoiceQuestionInput {
+  input CheckboxQuestionInput {
     title: String!
     required: Boolean!
     order: Int!
@@ -78,34 +87,30 @@ export const typeDefs = /* GraphQL */ `
     maxSelected: Int
   }
 
+  input DateQuestionInput {
+    title: String!
+    required: Boolean!
+    order: Int!
+  }
+
   input QuestionInput {
     type: QuestionType!
     text: TextQuestionInput
-    single: SingleChoiceQuestionInput
-    multi: MultiChoiceQuestionInput
-  }
-
-  input CreateFormInput {
-    title: String!
-    description: String
-    questions: [QuestionInput!]!
-  }
-
-  input UpdateFormInput {
-    title: String
-    description: String
-    questions: [QuestionInput!]
+    multipleChoice: MultipleChoiceQuestionInput
+    checkbox: CheckboxQuestionInput
+    date: DateQuestionInput
   }
 
   type Answer {
     questionId: ID!
     type: QuestionType!
     textValue: String
-    singleValue: String
-    multiValue: [String!]
+    multipleChoiceValue: String
+    checkboxValue: [String!]
+    dateValue: String
   }
 
-  type FormResponse {
+  type Response {
     id: ID!
     formId: ID!
     createdAt: DateTime!
@@ -116,25 +121,20 @@ export const typeDefs = /* GraphQL */ `
     questionId: ID!
     type: QuestionType!
     textValue: String
-    singleValue: String
-    multiValue: [String!]
-  }
-
-  input SubmitResponseInput {
-    answers: [AnswerInput!]!
+    multipleChoiceValue: String
+    checkboxValue: [String!]
+    dateValue: String
   }
 
   type Query {
     health: String!
     forms: [Form!]!
     form(id: ID!): Form
-    responses(formId: ID!): [FormResponse!]!
+    responses(formId: ID!): [Response!]!
   }
 
   type Mutation {
-    createForm(input: CreateFormInput!): Form!
-    updateForm(id: ID!, input: UpdateFormInput!): Form!
-    deleteForm(id: ID!): Boolean!
-    submitResponse(formId: ID!, input: SubmitResponseInput!): FormResponse!
+    createForm(title: String!, description: String, questions: [QuestionInput!]): Form!
+    submitResponse(formId: ID!, answers: [AnswerInput!]!): Response!
   }
 `;

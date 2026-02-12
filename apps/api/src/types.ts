@@ -1,4 +1,4 @@
-export type GqlQuestionType = "TEXT" | "SINGLE" | "MULTI";
+export type GqlQuestionType = "TEXT" | "MULTIPLE_CHOICE" | "CHECKBOX" | "DATE";
 
 export type QuestionInput = {
   type: GqlQuestionType;
@@ -9,13 +9,13 @@ export type QuestionInput = {
     placeholder?: string | null;
     maxLength?: number | null;
   } | null;
-  single?: {
+  multipleChoice?: {
     title: string;
     required: boolean;
     order: number;
     options: string[];
   } | null;
-  multi?: {
+  checkbox?: {
     title: string;
     required: boolean;
     order: number;
@@ -23,28 +23,18 @@ export type QuestionInput = {
     minSelected?: number | null;
     maxSelected?: number | null;
   } | null;
-};
-
-export type CreateFormInput = {
-  title: string;
-  description?: string | null;
-  questions: QuestionInput[];
-};
-
-export type UpdateFormInput = {
-  title?: string | null;
-  description?: string | null;
-  questions?: QuestionInput[] | null;
+  date?: {
+    title: string;
+    required: boolean;
+    order: number;
+  } | null;
 };
 
 export type AnswerInput = {
   questionId: string;
   type: GqlQuestionType;
   textValue?: string | null;
-  singleValue?: string | null;
-  multiValue?: string[] | null;
-};
-
-export type SubmitResponseInput = {
-  answers: AnswerInput[];
+  multipleChoiceValue?: string | null;
+  checkboxValue?: string[] | null;
+  dateValue?: string | null;
 };

@@ -1,13 +1,33 @@
 import type { Answer, Form, FormResponse, Question } from "@shared/types";
 import { db, id, nowIso } from "./db";
-import type {
-  CreateFormInput,
-  SubmitResponseInput,
-  UpdateFormInput,
-} from "./types";
+import type { AnswerInput, QuestionInput } from "./types";
 import { buildQuestion, mapSharedTypeToGraphql, toGqlAnswer } from "./mappers";
 
+type CreateFormArgs = {
+  title: string;
+  description?: string | null;
+  questions?: QuestionInput[] | null;
+};
+
+type SubmitResponseArgs = {
+  formId: string;
+  answers: AnswerInput[];
+};
+
 export const resolvers = {
+  TextQuestion: {
+    type: () => "TEXT",
+  },
+  MultipleChoiceQuestion: {
+    type: () => "MULTIPLE_CHOICE",
+  },
+  CheckboxQuestion: {
+    type: () => "CHECKBOX",
+  },
+  DateQuestion: {
+    type: () => "DATE",
+  },
+
   DateTime: {
     serialize(value: unknown) {
       if (typeof value === "string") return value;
@@ -19,8 +39,9 @@ export const resolvers = {
   Question: {
     __resolveType(obj: Question) {
       if (obj.type === "text") return "TextQuestion";
-      if (obj.type === "single") return "SingleChoiceQuestion";
-      return "MultiChoiceQuestion";
+      if (obj.type === "multiple_choice") return "MultipleChoiceQuestion";
+      if (obj.type === "checkbox") return "CheckboxQuestion";
+      return "DateQuestion";
     },
     type(obj: Question) {
       return mapSharedTypeToGraphql(obj.type);
@@ -42,18 +63,19 @@ export const resolvers = {
   },
 
   Mutation: {
-    createForm: (_: unknown, args: { input: CreateFormInput }): Form => {
+    createForm: (_: unknown, args: CreateFormArgs): Form => {
       const formId = id("form");
       const createdAt = nowIso();
 
-      const questions: Question[] = args.input.questions.map((q, idx) =>
+      const questionsInput = args.questions ?? [];
+      const questions: Question[] = questionsInput.map((q, idx) =>
         buildQuestion(q, idx),
       );
 
       const form: Form = {
         id: formId,
-        title: args.input.title,
-        description: args.input.description ?? undefined,
+        title: args.title,
+        description: args.description ?? undefined,
         createdAt,
         updatedAt: createdAt,
         questions,
@@ -64,68 +86,36 @@ export const resolvers = {
       return form;
     },
 
-    updateForm: (
-      _: unknown,
-      args: { id: string; input: UpdateFormInput },
-    ): Form => {
-      const existing = db.forms.get(args.id);
-      if (!existing) throw new Error("Form not found");
-
-      const updatedAt = nowIso();
-
-      const next: Form = {
-        ...existing,
-        title: args.input.title ?? existing.title,
-        description:
-          args.input.description === undefined
-            ? existing.description
-            : (args.input.description ?? undefined),
-        updatedAt,
-        questions:
-          args.input.questions == null
-            ? existing.questions
-            : args.input.questions.map((q, idx) => buildQuestion(q, idx)),
-      };
-
-      db.forms.set(args.id, next);
-      return next;
-    },
-
-    deleteForm: (_: unknown, args: { id: string }): boolean => {
-      const existed = db.forms.delete(args.id);
-      db.responses.delete(args.id);
-      return existed;
-    },
-
-    submitResponse: (
-      _: unknown,
-      args: { formId: string; input: SubmitResponseInput },
-    ): FormResponse => {
+    submitResponse: (_: unknown, args: SubmitResponseArgs): FormResponse => {
       const form = db.forms.get(args.formId);
       if (!form) throw new Error("Form not found");
 
       const responseId = id("resp");
       const createdAt = nowIso();
 
-      const answers: Answer[] = args.input.answers.map((a): Answer => {
-        if (a.type === "TEXT") {
+      const answers: Answer[] = args.answers.map((a): Answer => {
+        if (a.type === "TEXT")
           return {
             questionId: a.questionId,
             type: "text",
             value: a.textValue ?? "",
           };
-        }
-        if (a.type === "SINGLE") {
+        if (a.type === "MULTIPLE_CHOICE")
           return {
             questionId: a.questionId,
-            type: "single",
-            value: a.singleValue ?? "",
+            type: "multiple_choice",
+            value: a.multipleChoiceValue ?? "",
           };
-        }
+        if (a.type === "CHECKBOX")
+          return {
+            questionId: a.questionId,
+            type: "checkbox",
+            value: a.checkboxValue ?? [],
+          };
         return {
           questionId: a.questionId,
-          type: "multi",
-          value: a.multiValue ?? [],
+          type: "date",
+          value: a.dateValue ?? "",
         };
       });
 
@@ -142,7 +132,7 @@ export const resolvers = {
     },
   },
 
-  FormResponse: {
+  Response: {
     answers(r: FormResponse) {
       return r.answers.map(toGqlAnswer);
     },

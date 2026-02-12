@@ -6,10 +6,12 @@ export function mapSharedTypeToGraphql(t: Question["type"]): GqlQuestionType {
   switch (t) {
     case "text":
       return "TEXT";
-    case "single":
-      return "SINGLE";
-    case "multi":
-      return "MULTI";
+    case "multiple_choice":
+      return "MULTIPLE_CHOICE";
+    case "checkbox":
+      return "CHECKBOX";
+    case "date":
+      return "DATE";
   }
 }
 
@@ -22,7 +24,6 @@ export function buildQuestion(
   if (q.type === "TEXT") {
     const data = q.text;
     if (!data) throw new Error("TEXT question requires 'text' input");
-
     return {
       id: qId,
       type: "text",
@@ -34,13 +35,15 @@ export function buildQuestion(
     };
   }
 
-  if (q.type === "SINGLE") {
-    const data = q.single;
-    if (!data) throw new Error("SINGLE question requires 'single' input");
-
+  if (q.type === "MULTIPLE_CHOICE") {
+    const data = q.multipleChoice;
+    if (!data)
+      throw new Error(
+        "MULTIPLE_CHOICE question requires 'multipleChoice' input",
+      );
     return {
       id: qId,
-      type: "single",
+      type: "multiple_choice",
       title: data.title,
       required: data.required,
       order: data.order ?? orderFallback,
@@ -48,18 +51,29 @@ export function buildQuestion(
     };
   }
 
-  const data = q.multi;
-  if (!data) throw new Error("MULTI question requires 'multi' input");
+  if (q.type === "CHECKBOX") {
+    const data = q.checkbox;
+    if (!data) throw new Error("CHECKBOX question requires 'checkbox' input");
+    return {
+      id: qId,
+      type: "checkbox",
+      title: data.title,
+      required: data.required,
+      order: data.order ?? orderFallback,
+      options: data.options,
+      minSelected: data.minSelected ?? undefined,
+      maxSelected: data.maxSelected ?? undefined,
+    };
+  }
 
+  const data = q.date;
+  if (!data) throw new Error("DATE question requires 'date' input");
   return {
     id: qId,
-    type: "multi",
+    type: "date",
     title: data.title,
     required: data.required,
     order: data.order ?? orderFallback,
-    options: data.options,
-    minSelected: data.minSelected ?? undefined,
-    maxSelected: data.maxSelected ?? undefined,
   };
 }
 
@@ -67,14 +81,23 @@ export function toGqlAnswer(a: Answer): {
   questionId: string;
   type: GqlQuestionType;
   textValue?: string;
-  singleValue?: string;
-  multiValue?: string[];
+  multipleChoiceValue?: string;
+  checkboxValue?: string[];
+  dateValue?: string;
 } {
-  if (a.type === "text") {
+  if (a.type === "text")
     return { questionId: a.questionId, type: "TEXT", textValue: a.value };
-  }
-  if (a.type === "single") {
-    return { questionId: a.questionId, type: "SINGLE", singleValue: a.value };
-  }
-  return { questionId: a.questionId, type: "MULTI", multiValue: a.value };
+  if (a.type === "multiple_choice")
+    return {
+      questionId: a.questionId,
+      type: "MULTIPLE_CHOICE",
+      multipleChoiceValue: a.value,
+    };
+  if (a.type === "checkbox")
+    return {
+      questionId: a.questionId,
+      type: "CHECKBOX",
+      checkboxValue: a.value,
+    };
+  return { questionId: a.questionId, type: "DATE", dateValue: a.value };
 }

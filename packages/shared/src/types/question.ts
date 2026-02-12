@@ -1,4 +1,4 @@
-export type QuestionType = "text" | "single" | "multi";
+export type QuestionType = "text" | "multiple_choice" | "checkbox" | "date";
 
 export type BaseQuestion = {
   id: string;
@@ -14,19 +14,24 @@ export type TextQuestion = BaseQuestion & {
   maxLength?: number;
 };
 
-export type SingleChoiceQuestion = BaseQuestion & {
-  type: "single";
+export type MultipleChoiceQuestion = BaseQuestion & {
+  type: "multiple_choice";
   options: string[];
 };
 
-export type MultiChoiceQuestion = BaseQuestion & {
-  type: "multi";
+export type CheckboxQuestion = BaseQuestion & {
+  type: "checkbox";
   options: string[];
   minSelected?: number;
   maxSelected?: number;
 };
 
+export type DateQuestion = BaseQuestion & {
+  type: "date";
+};
+
 export type Question =
   | TextQuestion
-  | SingleChoiceQuestion
-  | MultiChoiceQuestion;
+  | MultipleChoiceQuestion
+  | CheckboxQuestion
+  | DateQuestion;
