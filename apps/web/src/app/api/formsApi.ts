@@ -85,6 +85,23 @@ type SubmitResponseData = {
   submitResponse: { id: string; createdAt: string };
 };
 
+export type ResponseAnswer = {
+  questionId: string;
+  type: "TEXT" | "MULTIPLE_CHOICE" | "CHECKBOX" | "DATE";
+  textValue?: string | null;
+  multipleChoiceValue?: string | null;
+  checkboxValue?: string[] | null;
+  dateValue?: string | null;
+};
+
+export type FormResponseItem = {
+  id: string;
+  createdAt: string;
+  answers: ResponseAnswer[];
+};
+
+type ResponsesQueryData = { responses: FormResponseItem[] };
+
 export type FormById = {
   id: string;
   title: string;
@@ -190,6 +207,30 @@ export const formsApi = createApi({
       transformResponse: (response) =>
         (response as SubmitResponseData).submitResponse,
     }),
+
+    getResponses: builder.query<FormResponseItem[], string>({
+      query: (formId) => ({
+        query: `
+      query Responses($formId: ID!) {
+        responses(formId: $formId) {
+          id
+          createdAt
+          answers {
+            questionId
+            type
+            textValue
+            multipleChoiceValue
+            checkboxValue
+            dateValue
+          }
+        }
+      }
+    `,
+        variables: { formId },
+      }),
+      transformResponse: (response) =>
+        (response as ResponsesQueryData).responses,
+    }),
   }),
 });
 
@@ -198,4 +239,5 @@ export const {
   useCreateFormMutation,
   useGetFormQuery,
   useSubmitResponseMutation,
+  useGetResponsesQuery,
 } = formsApi;
