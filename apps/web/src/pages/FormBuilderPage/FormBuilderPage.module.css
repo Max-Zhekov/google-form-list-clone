@@ -1,0 +1,165 @@
+.builder {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+.builder__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.builder__title {
+  margin: 0;
+  font-size: 28px;
+}
+
+.builder__save {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.builder__save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.builder__meta {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.builder__field {
+  display: grid;
+  gap: 6px;
+}
+
+.builder__label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.builder__input,
+.builder__textarea {
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.builder__textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.builder__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.builder__btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.builder__list {
+  display: grid;
+  gap: 12px;
+}
+
+.builder__empty {
+  opacity: 0.7;
+  padding: 12px;
+  border: 1px dashed #ddd;
+  border-radius: 12px;
+}
+
+.builder__card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.builder__card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.builder__card-type {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.builder__card-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.builder__iconbtn {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.builder__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.builder__grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.builder__options {
+  display: grid;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.builder__options-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.builder__option-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.builder__error {
+  margin-top: 16px;
+  color: #c20d0d;
+}
