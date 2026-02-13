@@ -1,4 +1,5 @@
 import type { UiQuestion } from "../hooks/useFormBuilder";
+import type { QuestionInput } from "../gql/generated";
 
 function toIntOrNull(v: string | undefined): number | null {
   const t = (v ?? "").trim();
@@ -7,8 +8,8 @@ function toIntOrNull(v: string | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export function mapQuestionsToGql(questions: UiQuestion[]): unknown[] {
-  return questions.map((q) => {
+export function mapQuestionsToGql(questions: UiQuestion[]): QuestionInput[] {
+  return questions.map((q): QuestionInput => {
     if (q.type === "text") {
       return {
         type: "TEXT",

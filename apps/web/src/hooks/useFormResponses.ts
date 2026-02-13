@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import type {
-  FormById,
-  FormResponseItem,
-  ResponseAnswer,
-} from "../app/api/formsApi";
+import type { GetFormQuery, ResponsesQuery } from "../gql/generated";
+
+type FormById = NonNullable<GetFormQuery["form"]>;
+type FormResponseItem = ResponsesQuery["responses"][number];
+type ResponseAnswer = FormResponseItem["answers"][number];
 
 type QuestionView = {
   id: string;

@@ -1,117 +1,20 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { graphqlBaseQuery } from "./graphqlBaseQuery";
+import type {
+  GetFormsQuery,
+  GetFormQuery,
+  CreateFormMutation,
+  CreateFormMutationVariables,
+  SubmitResponseMutation,
+  SubmitResponseMutationVariables,
+  ResponsesQuery,
+  GetFormQueryVariables,
+  ResponsesQueryVariables,
+} from "../../gql/generated";
 
-export type FormListItem = {
-  id: string;
-  title: string;
-  description?: string | null;
-};
-
-type FormsQueryData = { forms: FormListItem[] };
-
-type CreateFormArgs = {
-  title: string;
-  description?: string | null;
-  questions: unknown[];
-};
-
-type CreateFormData = { createForm: { id: string; title: string } };
-
-type FormQuestion =
-  | {
-      id: string;
-      type: "TEXT";
-      title: string;
-      required: boolean;
-      order: number;
-      placeholder?: string | null;
-      maxLength?: number | null;
-      options?: never;
-      minSelected?: never;
-      maxSelected?: never;
-    }
-  | {
-      id: string;
-      type: "MULTIPLE_CHOICE";
-      title: string;
-      required: boolean;
-      order: number;
-      options: string[];
-      placeholder?: never;
-      maxLength?: never;
-      minSelected?: never;
-      maxSelected?: never;
-    }
-  | {
-      id: string;
-      type: "CHECKBOX";
-      title: string;
-      required: boolean;
-      order: number;
-      options: string[];
-      minSelected?: number | null;
-      maxSelected?: number | null;
-      placeholder?: never;
-      maxLength?: never;
-    }
-  | {
-      id: string;
-      type: "DATE";
-      title: string;
-      required: boolean;
-      order: number;
-      placeholder?: never;
-      maxLength?: never;
-      options?: never;
-      minSelected?: never;
-      maxSelected?: never;
-    };
-
-export type SubmitAnswer = {
-  questionId: string;
-  type: "TEXT" | "MULTIPLE_CHOICE" | "CHECKBOX" | "DATE";
-  textValue?: string | null;
-  multipleChoiceValue?: string | null;
-  checkboxValue?: string[] | null;
-  dateValue?: string | null;
-};
-
-type SubmitResponseArgs = {
-  formId: string;
-  answers: SubmitAnswer[];
-};
-
-type SubmitResponseData = {
-  submitResponse: { id: string; createdAt: string };
-};
-
-export type ResponseAnswer = {
-  questionId: string;
-  type: "TEXT" | "MULTIPLE_CHOICE" | "CHECKBOX" | "DATE";
-  textValue?: string | null;
-  multipleChoiceValue?: string | null;
-  checkboxValue?: string[] | null;
-  dateValue?: string | null;
-};
-
-export type FormResponseItem = {
-  id: string;
-  createdAt: string;
-  answers: ResponseAnswer[];
-};
-
-type ResponsesQueryData = { responses: FormResponseItem[] };
-
-export type FormById = {
-  id: string;
-  title: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
-  questions: FormQuestion[];
-};
-
-type FormQueryData = { form: FormById | null };
+export type FormListItem = GetFormsQuery["forms"][number];
+export type FormById = NonNullable<GetFormQuery["form"]>;
+export type FormResponseItem = ResponsesQuery["responses"][number];
 
 export const formsApi = createApi({
   reducerPath: "formsApi",
@@ -121,115 +24,113 @@ export const formsApi = createApi({
     getForms: builder.query<FormListItem[], void>({
       query: () => ({
         query: `
-          query {
+          query GetForms {
             forms { id title description }
           }
         `,
       }),
-      transformResponse: (response) => (response as FormsQueryData).forms,
+      transformResponse: (response) => (response as GetFormsQuery).forms,
       providesTags: ["Forms"],
     }),
 
-    createForm: builder.mutation<{ id: string; title: string }, CreateFormArgs>(
-      {
-        query: (args) => ({
-          query: `
-           mutation CreateForm($title: String!, $description: String, $questions: [QuestionInput!]) {
+    createForm: builder.mutation<
+      CreateFormMutation["createForm"],
+      CreateFormMutationVariables
+    >({
+      query: (variables) => ({
+        query: `
+          mutation CreateForm($title: String!, $description: String, $questions: [QuestionInput!]) {
             createForm(title: $title, description: $description, questions: $questions) {
               id
               title
             }
-          }`,
-          variables: {
-            title: args.title,
-            description: args.description ?? null,
-            questions: args.questions,
-          },
-        }),
-        transformResponse: (response) =>
-          (response as CreateFormData).createForm,
-        invalidatesTags: ["Forms"],
-      },
-    ),
+          }
+        `,
+        variables,
+      }),
+      transformResponse: (response) =>
+        (response as CreateFormMutation).createForm,
+      invalidatesTags: ["Forms"],
+    }),
 
-    getForm: builder.query<FormById, string>({
+    getForm: builder.query<FormById, GetFormQueryVariables["id"]>({
       query: (id) => ({
         query: `
-      query GetForm($id: ID!) {
-        form(id: $id) {
-          id
-          title
-          description
-          createdAt
-          updatedAt
-          questions {
-            id
-            type
-            title
-            required
-            order
+          query GetForm($id: ID!) {
+            form(id: $id) {
+              id
+              title
+              description
+              createdAt
+              updatedAt
+              questions {
+                __typename
+                id
+                type
+                title
+                required
+                order
 
-            ... on TextQuestion { placeholder maxLength }
-            ... on MultipleChoiceQuestion { options }
-            ... on CheckboxQuestion { options minSelected maxSelected }
-            ... on DateQuestion { id } 
+                ... on TextQuestion { placeholder maxLength }
+                ... on MultipleChoiceQuestion { options }
+                ... on CheckboxQuestion { options minSelected maxSelected }
+                ... on DateQuestion { id }
+              }
+            }
           }
-        }
-      }
-    `,
+        `,
         variables: { id },
       }),
       transformResponse: (response) => {
-        const data = response as FormQueryData;
+        const data = response as GetFormQuery;
         if (!data.form) throw new Error("Form not found");
         return data.form;
       },
     }),
 
     submitResponse: builder.mutation<
-      { id: string; createdAt: string },
-      SubmitResponseArgs
+      SubmitResponseMutation["submitResponse"],
+      SubmitResponseMutationVariables
     >({
-      query: (args) => ({
+      query: (variables) => ({
         query: `
-      mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
-        submitResponse(formId: $formId, answers: $answers) {
-          id
-          createdAt
-        }
-      }
-    `,
-        variables: {
-          formId: args.formId,
-          answers: args.answers,
-        },
+          mutation SubmitResponse($formId: ID!, $answers: [AnswerInput!]!) {
+            submitResponse(formId: $formId, answers: $answers) {
+              id
+              createdAt
+            }
+          }
+        `,
+        variables,
       }),
       transformResponse: (response) =>
-        (response as SubmitResponseData).submitResponse,
+        (response as SubmitResponseMutation).submitResponse,
     }),
 
-    getResponses: builder.query<FormResponseItem[], string>({
+    getResponses: builder.query<
+      FormResponseItem[],
+      ResponsesQueryVariables["formId"]
+    >({
       query: (formId) => ({
         query: `
-      query Responses($formId: ID!) {
-        responses(formId: $formId) {
-          id
-          createdAt
-          answers {
-            questionId
-            type
-            textValue
-            multipleChoiceValue
-            checkboxValue
-            dateValue
+          query Responses($formId: ID!) {
+            responses(formId: $formId) {
+              id
+              createdAt
+              answers {
+                questionId
+                type
+                textValue
+                multipleChoiceValue
+                checkboxValue
+                dateValue
+              }
+            }
           }
-        }
-      }
-    `,
+        `,
         variables: { formId },
       }),
-      transformResponse: (response) =>
-        (response as ResponsesQueryData).responses,
+      transformResponse: (response) => (response as ResponsesQuery).responses,
     }),
   }),
 });

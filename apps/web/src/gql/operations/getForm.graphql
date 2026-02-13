@@ -1,0 +1,33 @@
+query GetForm($id: ID!) {
+  form(id: $id) {
+    id
+    title
+    description
+    createdAt
+    updatedAt
+    questions {
+      __typename
+      id
+      type
+      title
+      required
+      order
+
+      ... on TextQuestion {
+        placeholder
+        maxLength
+      }
+      ... on MultipleChoiceQuestion {
+        options
+      }
+      ... on CheckboxQuestion {
+        options
+        minSelected
+        maxSelected
+      }
+      ... on DateQuestion {
+        id
+      }
+    }
+  }
+}

@@ -7,6 +7,45 @@ import {
 import { useFillForm } from "../../hooks/useFillForm";
 import styles from "./FormFillerPage.module.css";
 
+type Question = ReturnType<typeof useFillForm>["sortedQuestions"][number];
+type TextQuestion = Extract<Question, { __typename?: "TextQuestion" }>;
+type MultipleChoiceQuestion = Extract<
+  Question,
+  { __typename?: "MultipleChoiceQuestion" }
+>;
+type CheckboxQuestion = Extract<Question, { __typename?: "CheckboxQuestion" }>;
+type DateQuestion = Extract<Question, { __typename?: "DateQuestion" }>;
+
+function isTextQuestion(q: Question): q is TextQuestion {
+  return (
+    q.__typename === "TextQuestion" ||
+    q.type === "TEXT" ||
+    "placeholder" in q ||
+    "maxLength" in q
+  );
+}
+
+function isCheckboxQuestion(q: Question): q is CheckboxQuestion {
+  return (
+    q.__typename === "CheckboxQuestion" ||
+    q.type === "CHECKBOX" ||
+    "minSelected" in q ||
+    "maxSelected" in q
+  );
+}
+
+function isMultipleChoiceQuestion(q: Question): q is MultipleChoiceQuestion {
+  return (
+    q.__typename === "MultipleChoiceQuestion" ||
+    q.type === "MULTIPLE_CHOICE" ||
+    ("options" in q && !("minSelected" in q) && !("maxSelected" in q))
+  );
+}
+
+function isDateQuestion(q: Question): q is DateQuestion {
+  return q.__typename === "DateQuestion" || q.type === "DATE";
+}
+
 export function FormFillerPage() {
   const { id } = useParams();
   const formId = id ?? "";
@@ -78,7 +117,7 @@ export function FormFillerPage() {
                 <div className={styles["fill__qtype"]}>{q.type}</div>
               </div>
 
-              {q.type === "TEXT" && (
+              {isTextQuestion(q) && (
                 <input
                   className={styles["fill__input"]}
                   placeholder={q.placeholder ?? ""}
@@ -88,9 +127,9 @@ export function FormFillerPage() {
                 />
               )}
 
-              {q.type === "MULTIPLE_CHOICE" && (
+              {isMultipleChoiceQuestion(q) && (
                 <div className={styles["fill__options"]}>
-                  {(q.options ?? []).map((opt) => (
+                  {q.options.map((opt) => (
                     <label key={opt} className={styles["fill__option"]}>
                       <input
                         type="radio"
@@ -109,9 +148,9 @@ export function FormFillerPage() {
                 </div>
               )}
 
-              {q.type === "CHECKBOX" && (
+              {isCheckboxQuestion(q) && (
                 <div className={styles["fill__options"]}>
-                  {(q.options ?? []).map((opt) => {
+                  {q.options.map((opt) => {
                     const checked =
                       a && a.type === "CHECKBOX"
                         ? a.value.includes(opt)
@@ -132,7 +171,7 @@ export function FormFillerPage() {
                 </div>
               )}
 
-              {q.type === "DATE" && (
+              {isDateQuestion(q) && (
                 <input
                   className={styles["fill__input"]}
                   type="date"

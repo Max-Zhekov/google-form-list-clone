@@ -1,0 +1,14 @@
+query Responses($formId: ID!) {
+  responses(formId: $formId) {
+    id
+    createdAt
+    answers {
+      questionId
+      type
+      textValue
+      multipleChoiceValue
+      checkboxValue
+      dateValue
+    }
+  }
+}

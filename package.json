@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -ws",
-    "typecheck": "npm run typecheck -ws",
+    "build": "npm run --workspaces build",
+    "typecheck": "npm run --workspaces typecheck",
     "predev": "npm run build -w packages/shared",
     "dev": "concurrently -n api,web \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
     "dev:api": "npm run dev -w apps/api",
