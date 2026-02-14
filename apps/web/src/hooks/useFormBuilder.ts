@@ -1,19 +1,4 @@
-export type UiQuestionType = "text" | "multiple_choice" | "checkbox" | "date";
-
-export type UiQuestion = {
-  id: string;
-  type: UiQuestionType;
-  title: string;
-  required: boolean;
-  order: number;
-
-  placeholder?: string;
-  maxLength?: string;
-
-  options?: string[];
-  minSelected?: string;
-  maxSelected?: string;
-};
+import type { UiQuestion, UiQuestionType } from "../types/uiQuestionType.types";
 
 function uid(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}${Date.now().toString(36)}`;

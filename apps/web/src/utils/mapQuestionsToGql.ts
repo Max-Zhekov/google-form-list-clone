@@ -1,4 +1,4 @@
-import type { UiQuestion } from "../hooks/useFormBuilder";
+import type { UiQuestion } from "../types/uiQuestionType.types";
 import type { QuestionInput } from "../gql/generated";
 
 function toIntOrNull(v: string | undefined): number | null {

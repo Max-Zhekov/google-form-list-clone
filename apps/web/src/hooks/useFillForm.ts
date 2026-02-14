@@ -1,37 +1,16 @@
 import { useMemo, useState } from "react";
+import type { QuestionType } from "../gql/generated";
 import type {
-  GetFormQuery,
-  SubmitResponseMutationVariables,
-  QuestionType,
-} from "../gql/generated";
+  AnswerState,
+  SubmitAnswer,
+  FormById,
+} from "../types/fillFormTypes.types";
 
-type FormById = NonNullable<GetFormQuery["form"]>;
-
-type AnswersVar = SubmitResponseMutationVariables["answers"];
-type ArrayItem<T> = T extends ReadonlyArray<infer U> ? U : T;
-type SubmitAnswer = ArrayItem<AnswersVar>;
-
-type AnswerState =
-  | { type: "TEXT"; value: string }
-  | { type: "MULTIPLE_CHOICE"; value: string }
-  | { type: "CHECKBOX"; value: string[] }
-  | { type: "DATE"; value: string };
-
-/**
- * ВАЖНО:
- * Codegen ожидает type: QuestionType (а не просто string)
- * Поэтому мы маппим наши локальные строки -> значения QuestionType.
- *
- * Если в твоём schema value называется не "MULTIPLE_CHOICE", а иначе —
- * поменяешь ТОЛЬКО тут, в одном месте.
- */
 function toGqlQuestionType(t: AnswerState["type"]): QuestionType {
   switch (t) {
     case "TEXT":
       return "TEXT";
     case "MULTIPLE_CHOICE":
-      // если у тебя в schema было "MULTIPLE_CHOICE" — ок
-      // если вдруг "SINGLE" — поменяй на "SINGLE"
       return "MULTIPLE_CHOICE";
     case "CHECKBOX":
       return "CHECKBOX";
@@ -44,7 +23,6 @@ function buildInitialAnswers(form: FormById): Map<string, AnswerState> {
   const map = new Map<string, AnswerState>();
 
   for (const q of form.questions) {
-    // q.type тут уже из codegen (QuestionType)
     if (q.type === "TEXT") map.set(q.id, { type: "TEXT", value: "" });
 
     if (q.type === "MULTIPLE_CHOICE")
@@ -83,7 +61,6 @@ function toSubmitAnswers(state: Map<string, AnswerState>): SubmitAnswer[] {
       continue;
     }
 
-    // DATE
     out.push({ questionId, type, dateValue: a.value } as SubmitAnswer);
   }
 
@@ -101,7 +78,6 @@ export function useFillForm(form: FormById | undefined) {
     answers: form ? buildInitialAnswers(form) : new Map(),
   }));
 
-  // безопасный ресет при смене формы (без useEffect)
   if (form && state.formId !== form.id) {
     setState({
       formId: form.id,
@@ -118,8 +94,7 @@ export function useFillForm(form: FormById | undefined) {
 
   function setText(qId: string, value: string) {
     const q = form?.questions.find((x) => x.id === qId);
-    const max =
-      q && "maxLength" in q ? (q.maxLength ?? null) : null;
+    const max = q && "maxLength" in q ? (q.maxLength ?? null) : null;
     const nextValue = max ? value.slice(0, max) : value;
 
     setState((prev) => ({

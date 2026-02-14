@@ -1,29 +1,13 @@
 import { useMemo } from "react";
-import type { GetFormQuery, ResponsesQuery } from "../gql/generated";
 
-type FormById = NonNullable<GetFormQuery["form"]>;
-type FormResponseItem = ResponsesQuery["responses"][number];
-type ResponseAnswer = FormResponseItem["answers"][number];
-
-type QuestionView = {
-  id: string;
-  title: string;
-  type: FormById["questions"][number]["type"];
-  options?: string[] | null;
-};
-
-type AnswerView = {
-  questionId: string;
-  questionTitle: string;
-  type: ResponseAnswer["type"];
-  value: string;
-};
-
-type ResponseView = {
-  id: string;
-  createdAt: string;
-  answers: AnswerView[];
-};
+import type {
+  QuestionView,
+  AnswerView,
+  ResponseView,
+  ResponseAnswer,
+  FormById,
+  FormResponseItem,
+} from "../types/formResponsesTypes.types";
 
 function formatAnswer(a: ResponseAnswer): string {
   if (a.type === "TEXT") return a.textValue ?? "";

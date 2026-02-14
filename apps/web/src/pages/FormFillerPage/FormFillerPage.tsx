@@ -5,46 +5,13 @@ import {
   useSubmitResponseMutation,
 } from "../../app/api/formsApi";
 import { useFillForm } from "../../hooks/useFillForm";
+import {
+  isTextQuestion,
+  isCheckboxQuestion,
+  isMultipleChoiceQuestion,
+  isDateQuestion,
+} from "../../utils/questionGuards";
 import styles from "./FormFillerPage.module.css";
-
-type Question = ReturnType<typeof useFillForm>["sortedQuestions"][number];
-type TextQuestion = Extract<Question, { __typename?: "TextQuestion" }>;
-type MultipleChoiceQuestion = Extract<
-  Question,
-  { __typename?: "MultipleChoiceQuestion" }
->;
-type CheckboxQuestion = Extract<Question, { __typename?: "CheckboxQuestion" }>;
-type DateQuestion = Extract<Question, { __typename?: "DateQuestion" }>;
-
-function isTextQuestion(q: Question): q is TextQuestion {
-  return (
-    q.__typename === "TextQuestion" ||
-    q.type === "TEXT" ||
-    "placeholder" in q ||
-    "maxLength" in q
-  );
-}
-
-function isCheckboxQuestion(q: Question): q is CheckboxQuestion {
-  return (
-    q.__typename === "CheckboxQuestion" ||
-    q.type === "CHECKBOX" ||
-    "minSelected" in q ||
-    "maxSelected" in q
-  );
-}
-
-function isMultipleChoiceQuestion(q: Question): q is MultipleChoiceQuestion {
-  return (
-    q.__typename === "MultipleChoiceQuestion" ||
-    q.type === "MULTIPLE_CHOICE" ||
-    ("options" in q && !("minSelected" in q) && !("maxSelected" in q))
-  );
-}
-
-function isDateQuestion(q: Question): q is DateQuestion {
-  return q.__typename === "DateQuestion" || q.type === "DATE";
-}
 
 export function FormFillerPage() {
   const { id } = useParams();

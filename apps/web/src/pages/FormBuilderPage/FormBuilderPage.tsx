@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateFormMutation } from "../../app/api/formsApi";
-import {
-  useFormBuilder,
-  type UiQuestion,
-  type UiQuestionType,
-} from "../../hooks/useFormBuilder";
+import { useFormBuilder } from "../../hooks/useFormBuilder";
 import { mapQuestionsToGql } from "../../utils/mapQuestionsToGql";
+import type {
+  UiQuestionType,
+  UiQuestion,
+} from "../../types/uiQuestionType.types";
 import styles from "./FormBuilderPage.module.css";
 
 export function FormBuilderPage() {
@@ -158,6 +158,7 @@ export function FormBuilderPage() {
                 <label className={styles["builder__field"]}>
                   <div className={styles["builder__label"]}>Max length</div>
                   <input
+                    type="number"
                     className={styles["builder__input"]}
                     value={q.maxLength ?? ""}
                     onChange={(e) =>
@@ -215,6 +216,7 @@ export function FormBuilderPage() {
                         Min selected
                       </div>
                       <input
+                        type="number"
                         className={styles["builder__input"]}
                         value={q.minSelected ?? ""}
                         onChange={(e) =>
@@ -232,6 +234,7 @@ export function FormBuilderPage() {
                         Max selected
                       </div>
                       <input
+                        type="number"
                         className={styles["builder__input"]}
                         value={q.maxSelected ?? ""}
                         onChange={(e) =>
