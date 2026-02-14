@@ -15,9 +15,8 @@ Monorepo project with:
 
 ```
 .
-├─ apps/
-│  ├─ api/          # GraphQL API (Apollo Server)
-│  └─ web/          # React app (Vite)
+├─ server/         # GraphQL API (Apollo Server)
+├─ client/         # React app (Vite)
 ├─ packages/
 │  └─ shared/       # Shared TS types used by API and Web
 ├─ package.json     # npm workspaces + root scripts
@@ -42,8 +41,8 @@ npm run dev
 
 This script:
 1) Builds shared package (`packages/shared`)
-2) Starts backend (`apps/api`)
-3) Starts frontend (`apps/web`)
+2) Starts backend (`server`)
+3) Starts frontend (`client`)
 
 ### Run only backend
 
@@ -67,6 +66,13 @@ query {
 
 ```bash
 npm run dev:web
+```
+
+### Alternative names
+
+```bash
+npm run dev:server
+npm run dev:client
 ```
 
 Frontend URL:

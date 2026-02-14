@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "client",
+    "server",
     "packages/*"
   ],
   "scripts": {
     "build": "npm run --workspaces build",
     "typecheck": "npm run --workspaces typecheck",
     "predev": "npm run build -w packages/shared",
-    "dev": "concurrently -n api,web \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
-    "dev:api": "npm run dev -w apps/api",
-    "dev:web": "npm run dev -w apps/web"
+    "dev": "concurrently -n server,client \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

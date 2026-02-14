@@ -10,7 +10,7 @@
   "dependencies": {
     "@apollo/server": "^4.0.0",
     "graphql": "^16.0.0",
-    "@shared/types": "file:../../packages/shared"
+    "@shared/types": "file:../packages/shared"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
