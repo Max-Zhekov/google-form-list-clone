@@ -1,6 +1,6 @@
 export type UiQuestionType = "text" | "multiple_choice" | "checkbox" | "date";
 
-export interface UiQuestion {
+export type UiQuestion = {
   id: string;
   type: UiQuestionType;
   title: string;
@@ -13,4 +13,4 @@ export interface UiQuestion {
   options?: string[];
   minSelected?: string;
   maxSelected?: string;
-}
+};

@@ -94,7 +94,8 @@ export function useFillForm(form: FormById | undefined) {
 
   function setText(qId: string, value: string) {
     const q = form?.questions.find((x) => x.id === qId);
-    const max = q && "maxLength" in q ? (q.maxLength ?? null) : null;
+    const max = q?.__typename === "TextQuestion" ? (q.maxLength ?? null) : null;
+
     const nextValue = max ? value.slice(0, max) : value;
 
     setState((prev) => ({

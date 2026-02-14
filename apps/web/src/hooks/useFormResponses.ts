@@ -9,6 +9,11 @@ import type {
   FormResponseItem,
 } from "../types/formResponsesTypes.types";
 
+import {
+  isCheckboxQuestion,
+  isMultipleChoiceQuestion,
+} from "../utils/questionGuards";
+
 function formatAnswer(a: ResponseAnswer): string {
   if (a.type === "TEXT") return a.textValue ?? "";
   if (a.type === "MULTIPLE_CHOICE") return a.multipleChoiceValue ?? "";
@@ -29,7 +34,10 @@ export function useFormResponses(
         id: q.id,
         title: q.title,
         type: q.type,
-        options: "options" in q ? (q.options ?? null) : null,
+        options:
+          isCheckboxQuestion(q) || isMultipleChoiceQuestion(q)
+            ? q.options
+            : null,
       });
     }
 
