@@ -18,6 +18,11 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        // Avoid ts-eslint trying to infer a TSConfig root in a multi-package workspace.
+        // See: https://tseslint.com/parser-tsconfigrootdir
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
 ])
